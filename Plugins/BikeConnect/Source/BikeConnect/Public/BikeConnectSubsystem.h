@@ -101,7 +101,7 @@ private:
 	void CheckForStaleData();
 
 	FTimerHandle StaleDataTimerHandle;
-	static constexpr float StaleDataTimeoutSeconds = 1.0f;
+	static constexpr float StaleDataTimeoutSeconds = 2f;
 
 	UPROPERTY(Transient)
 	FBikeCSCData LatestData;

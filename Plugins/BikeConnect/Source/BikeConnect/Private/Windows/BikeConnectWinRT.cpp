@@ -244,21 +244,29 @@ void FBikeConnectWinRTImpl::StartScanning()
 	// directly from the game thread (Subsystem::Initialize / Component::BeginPlay), so this must
 	// run on a background thread - otherwise the engine stalls until the OS responds.
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [ComRef, &OwnerRef]()
-	{
-		FScopeLock ScopeLock(&ComRef->Lock);
-		ComRef->bWantsScanning = true;
-
-		if (!ComRef->bRadioMonitorInitialized)
 		{
-			ComRef->bRadioMonitorInitialized = true;
-			InitializeRadioMonitor(ComRef, OwnerRef);
-		}
+			const HRESULT ComHr = RoInitialize(RO_INIT_MULTITHREADED);
+			const bool bComOwnedHere = SUCCEEDED(ComHr);
 
-		if (!ComRef->bWatcherRunning)
-		{
-			StartWatcher(ComRef, OwnerRef);
-		}
-	});
+			FScopeLock ScopeLock(&ComRef->Lock);
+			ComRef->bWantsScanning = true;
+
+			if (!ComRef->bRadioMonitorInitialized)
+			{
+				ComRef->bRadioMonitorInitialized = true;
+				InitializeRadioMonitor(ComRef, OwnerRef);
+			}
+
+			if (!ComRef->bWatcherRunning)
+			{
+				StartWatcher(ComRef, OwnerRef);
+			}
+
+			if (bComOwnedHere)
+			{
+				RoUninitialize();
+			}
+		});
 }
 
 void FBikeConnectWinRTImpl::StopScanning()
@@ -648,9 +656,17 @@ namespace BikeConnectWinRTInternal
 		// TSharedRef) so the connection state stays alive for the task's duration even if
 		// scanning is stopped/torn down in the meantime.
 		AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [Com, &Owner, Address]()
-		{
-			ConnectToDevice(Com, Owner, Address);
-		});
+			{
+				const HRESULT ComHr = RoInitialize(RO_INIT_MULTITHREADED);
+				const bool bComOwnedHere = SUCCEEDED(ComHr);
+
+				ConnectToDevice(Com, Owner, Address);
+
+				if (bComOwnedHere)
+				{
+					RoUninitialize();
+				}
+			});
 		return S_OK;
 	}
 
