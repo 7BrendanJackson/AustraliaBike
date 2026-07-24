@@ -68,6 +68,10 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Cycling Power")
 	FOnCyclingPowerDeviceFound OnDeviceFound;
 
+	/** Sets trainer resistance via FE-C Basic Resistance (0-100%, in 0.5% steps). Requires an active connection with FE-C control support (e.g. Tacx trainers). */
+	UFUNCTION(BlueprintCallable, Category = "Cycling Power")
+	void SetResistancePercent(float ResistancePercent);
+
 private:
 	friend class FCyclingPowerBLEImpl;
 	void SetConnectionState(ECyclingPowerConnectionState NewState);

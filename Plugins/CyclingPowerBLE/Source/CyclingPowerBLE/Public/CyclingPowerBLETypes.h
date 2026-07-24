@@ -43,4 +43,10 @@ struct FCyclingPowerData
 
 	UPROPERTY(BlueprintReadOnly, Category = "Cycling Power")
 	float WheelRPM = 0.f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Cycling Power")
+	float CaloriesBurning = 0.f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Cycling Power")
+	float CurrentSpeed = 0.f;
 };
